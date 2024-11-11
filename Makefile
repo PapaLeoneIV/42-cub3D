@@ -6,7 +6,7 @@ PNAME = $(shell echo -n ${NAME} | tr 'a-z' 'A-Z')
 
 # ----CONFIGURATIONS------------------------------------------------------------
 # THIS ENABLES SOME FEATURES FOR DEBUGGING (if they're not removed already)
-DEBUG_VALUE=1
+DEBUG_VALUE=0
 # SET THESE 2 LINES TO 0 IF YOU WANT THE GAME TO TAKE FULL SCREEN'S SIZE
 WINDOW_WIDTH=1280
 WINDOW_HEIGHT=720
@@ -32,7 +32,6 @@ RM = rm -rf
 
 SRC = ./main.c \
 	./src/cleanup.c \
-	./src/debug_display.c \
 	./src/deltatime.c \
 	./src/draw_helpers/draw_line.c \
 	./src/draw_helpers/draw_pixel.c \
@@ -79,8 +78,8 @@ debug:
 $(NAME): $(SRC)
 	@$(MAKE) -C $(LIBFTX_DIR) DEBUG_VALUE=$(DEBUG_VALUE)
 
-	if [ ! -f $(MLX_DIR)/$(MLX_LIBNAME) ] && [ ! -d $(MLX_DIR) ] ; then $(MAKE) download-mlx; fi
-	@$(MAKE) -sC $(MLX_DIR) 1>/dev/null 2>/dev/null && ( [ ! -f $(MLX_DIR)/$(MLX_LIBNAME) ] || echo "$(GREEN)[MLX]:\t\tLIBRARY CREATED")
+	if [ ! -f $(MLX_DIR)/$(MLX_NAME) ] && [ ! -d $(MLX_DIR) ] ; then $(MAKE) download-mlx; fi
+	@$(MAKE) -isC $(MLX_DIR) && ( [ ! -f $(MLX_DIR)/$(MLX_NAME) ] || echo "$(GREEN)[MLX]:\t\tLIBRARY CREATED")
 
 	@$(CC) $(CFLAGS) $(SRC) -o $(NAME) -L$(LIBFTX_DIR) -lft $(MLX_FLAGS) -lm
 	@echo "$(GREEN)[$(PNAME)]:\tPROGRAM CREATED$(R)"
@@ -89,7 +88,7 @@ $(NAME): $(SRC)
 
 clean:
 	@$(MAKE) -C $(LIBFTX_DIR) clean
-	@$(MAKE) -iC $(MLX_DIR) clean || echo -n ""
+	@$(MAKE) -iC $(MLX_DIR) clean 2>/dev/null ; echo "$(BLUE)[$(MLX_NAME)]:\tMLX LIB DELETED$(R)"
 
 fclean: clean
 	@$(MAKE) -C $(LIBFTX_DIR) fclean
@@ -102,10 +101,10 @@ re-debug: fclean debug
 re-force: fclean delete-mlx download-mlx all
 
 # ----UTILS---------------------------------------------------------------------
-VALGRIND=@valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes --quiet --tool=memcheck --keep-debuginfo=yes
+VALGRIND=@valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes --quiet --tool=memcheck
 ARGS="assets/maps/with_config.cub"
-# FOR FD 		TRACKING: --track-fds=yes
-# FOR CHILDREN	TRACKING: --trace-children=yes
+# + FD 			TRACKING: --track-fds=yes
+# + CHILDREN	TRACKING: --trace-children=yes
 valgrind: debug
 	clear
 	$(VALGRIND) ./$(NAME) "$(ARGS)"
