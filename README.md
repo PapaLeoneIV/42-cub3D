@@ -24,8 +24,7 @@ So for now it only supports `Linux` systems.
 All tools you might need to build this project:
 
 
-- `make`
-- `build-essential`
+- `C Compiler`
 - `wget`
 - `xorg`
 - `libxext-dev`
@@ -35,14 +34,15 @@ All tools you might need to build this project:
 
 (Debian/Ubuntu)
 ```bash
-sudo apt install make build-essential wget xorg libxext-dev libbsd-dev unzip
+sudo apt install build-essential wget xorg libxext-dev libbsd-dev unzip
 ```
 
 ### How to build
 
 To build the program you have just to run:
 ```bash
-make
+cc nob.c -o nob
+./nob
 ```
 
 ---
